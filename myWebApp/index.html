@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>California Fire</title>
+    <meta charset="UTF-8">
+    <link rel="icon" href="icon_webtab.png" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="JS_CSS_downloaded_libraries/dc.css">
+    <link rel="stylesheet" type="text/css" href="JS_CSS_downloaded_libraries/leaflet.css">
+    <link rel="stylesheet" type="text/css" href="JS_CSS_downloaded_libraries/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="myCSS_styleFiles/main.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <!-- 1st row - map title  -->
+        <div class="row">
+            <div class="col-xs-12 dc-data-count dc-chart" id="data-count">
+                <h3><b>2016 - 2020 California Fires (>500 acres) Size Predicitons
+                    </b>
+                    <a href="https://geoair.lipingyang.org/" target="_blank"><img src="icon_geoair.png"
+                            alt="GeoAIR_icon" style="width:10%;height:10%;"></a>
+                </h3>
+
+                <p style="text-indent: 280px"><i><a href="https://geoair.lipingyang.org/" target="_blank"
+                            style="color: black;">(Webpage development from Water Features Paper project by GeoAIR
+                            Lab)</a></i>
+                </p>
+                <p style="text-indent: 130px"><i></a></i></p>
+
+
+                <!-- Trigger the modal with a button -->
+
+
+                <!-- 2nd row - subtitle and data count  -->
+                <div class="row" id="count-row">
+                    <div class="col-xs-12 dc-data-count dc-chart" id="data-count">
+                        <h4>Fires
+                            <small>
+                                <span class="filter-count"></span> selected out of <span class="total-count"></span>
+                                Fires |
+                                <a id="all" href="#">Reset All</a>
+                                </span>
+                            </small>
+                            <button type="button" class="btn btn-default info pull-right" data-toggle="modal"
+                                data-target="#myModal">About the project</button>
+                        </h4>
+                    </div>
+                </div>
+
+                <!-- 3rd row - map and two pie charts-->
+                <div class="row" id="control-row">
+                    <div class="col-xs-8">
+                        <!-- <h4>Shark Attacks Marker Map
+                            <a href="index_2.html" style="color:black;">| Shark Attacks Choropleth Map </a>
+                        </h4> -->
+
+                        <p><i>(<span style="color:#228B22"> green</span> points: Natural; <span
+                                    style="color:#0096FF">bright blue</span>: Human; <span
+                                    style="color: #40E0D0">turquoise</span>: Missing data/not specified/undetermined
+                                )</i></p>
+                        <div id="map"></div>
+                    </div>
+                    <div class="col-xs-2 pie-chart">
+                        <h4><br>Fire Cause <small><a id="focus">reset</a></small></h4>
+                        <div class="dc-chart" id="chart-ring-focus"></div>
+
+                    </div>
+                    <div class="col-xs-2 pie-chart">
+                        <h4><br>County Name <small><a id="country">reset</a></small></h4>
+                        <div class="dc-chart" id="chart-ring-country"></div>
+                    </div>
+
+                </div>
+                <!-- 4th row - bar charts -->
+                <div class="row" id="control-row">
+
+                    <div class="col-xs-6">
+                        <h4><br>Fire Year <small><a id="year">reset</a></small></h4>
+                        <div class="dc-chart" id="chart-year-count"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 6th row - table -->
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-bordered table-striped" id="data-table">
+                        <thead>
+                            <tr class="header">
+                                <th>Fire Year</th>
+                                <th>Fire Name</th>
+                                <th>Discovery Date</th>
+                                <th>Fire Size (acres)</th>
+                                <th>County Name</th>
+                                <th>Aspect (degrees)</th>
+                                <th>Elevation (m)</th>
+                                <th>Slope (percent)</th>
+                                <th>Precipitation (cm)</th>
+                                <th>Max Temp (c)</th>
+                                <th>Mean Temp (c)</th>
+                                <th>Min Temp (c)</th>
+                                <th>Max VPD (mb)</th>
+                                <th>Min VPD (mb)</th>
+                                <th>Cause</th>
+                                <th>Fire Size Prediciton (acres)</th>
+                                <th>Fire Size Prediction Normalized</th>
+
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/d3.js"></script>
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/crossfilter.js"></script>
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/dc.js"></script>
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/leaflet.js"></script>
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/underscore-min.js"></script>
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/jQuery.js"></script>
+        <script type="text/javascript" src="JS_CSS_downloaded_libraries/Bootstrap.js"></script>
+        <script type="text/javascript">
+            //add base map
+            var USGS_USImagery = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 20,
+                attribution: '© <a href="https://usgs.gov/">U.S. Geological Survey</a>'
+            }),
+                OpenStreetMap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                });
+
+
+            var map = L.map('map', {
+                zoom: 10,
+                layers: [USGS_USImagery, OpenStreetMap]
+            });
+            var baseMaps = {
+                "USGS Satellite": USGS_USImagery,
+                "OpenStreetMap": OpenStreetMap
+
+            };
+
+            var paperMarkers = new L.FeatureGroup();
+
+
+
+
+            L.control.layers(baseMaps).addTo(map);
+
+
+            /* Parse csv file, create charts, draw markers on map */
+            d3.csv("data/fire_data_use2.csv", function (error, data) {
+
+
+                // set crossfilter
+                var ndx = crossfilter(data);
+
+                // create dimensions (x-axis values)
+                var countryDim = ndx.dimension(function (d) {
+                    return d["County_Name"];
+                });
+                var focusDim = ndx.dimension(function (d) {
+                    return d["Cause"];
+                });
+                var yearDim = ndx.dimension(function (d) {
+                    return d["FIRE_YEAR"];
+                });
+                var allDim = ndx.dimension(function (d) {
+                    return d;
+                });
+
+                // create groups (y-axis values)
+
+                var all = ndx.groupAll();
+
+                var countryGroup = countryDim.group().reduceCount();
+                var focusGroup = focusDim.group().reduceCount();
+                var yearGroup = yearDim.group().reduceCount();
+                // specify charts
+                // This is where the chart variable is defined.
+                var countryChart = dc.pieChart('#chart-ring-country');
+                var focusChart = dc.pieChart('#chart-ring-focus');
+                var yearChart = dc.barChart('#chart-year-count');
+
+                dataCount = dc.dataCount('#data-count');
+                dataTable = dc.dataTable('#data-table');
+
+                countryChart
+                    .width(225)
+                    .height(280)
+                    // .ordinalColors(['#493F3F', 'red', 'orange'])
+                    .dimension(countryDim)
+                    .group(countryGroup)
+                    .innerRadius(20);
+
+                focusChart
+                    .width(225)
+                    .height(280)
+                    .ordinalColors(['#0096FF', '#40E0D0', '#228B22'])
+                    // .ordinalColors(['#493F3F', 'red', 'orange'])
+                    .dimension(focusDim)
+                    .group(focusGroup)
+                    .innerRadius(20);
+
+                yearChart
+                    .width(550)
+                    .height(350)
+                    .dimension(yearDim)
+                    .group(yearGroup)
+                    .x(d3.scale.ordinal().domain(yearDim)) //d3.scale.ordinal().domain(genusDim) //d3.scaleBand() for d3 v4
+                    .xUnits(dc.units.ordinal)
+                    .elasticX(true)
+                    .elasticY(true)
+                    .brushOn(false)
+                    .centerBar(true)
+                    // .xAxisLabel('Injury Cause')
+                    .yAxisLabel('Count')
+
+                    .margins({
+                        top: 25,
+                        right: 20,
+                        bottom: 100,
+                        left: 80
+                    })
+                    .barPadding(0.6)
+                    .outerPadding(1)
+                    .gap(15)
+                    // because of the x axix label, need to set the bootom margin a large number
+                    .renderlet(function (chart) {
+                        chart.selectAll("g.x text")
+                            // .attr('dx', '-30')
+                            .attr('dx', '-5')
+                            .attr('dy', '15')
+                        // .attr('transform', "rotate(-15)");
+                    });
+
+                dataCount
+                    .dimension(ndx)
+                    .group(all);
+
+                // This is where you can adjust the columns of the fields in the tale.
+                dataTable
+                    .dimension(allDim)
+                    .group(function (d) {
+                        return 'dc.js insists on putting a row here so I remove it using JS';
+                    })
+                    .size(20)
+                    .columns([
+                        function (d) {
+                            return d["FIRE_YEAR"];
+                        },
+                        function (d) {
+                            return d["Fire_Name"];
+                        },
+                        function (d) {
+                            return d["DISCOVERY"];
+                        },
+                        function (d) {
+                            return d["FIRE_SIZE"];
+                        },
+                        function (d) {
+                            return d["County_Name"];
+                        },
+                        function (d) {
+                            return d["aspect_degrees"];
+                        },
+                        function (d) {
+                            return d["elevation_meters"];
+                        },
+                        function (d) {
+                            return d["slope_percent"];
+                        },
+                        function (d) {
+                            return d["precip"];
+                        },
+                        function (d) {
+                            return d["tmax"];
+                        },
+                        function (d) {
+                            return d["tmean"];
+                        },
+                        function (d) {
+                            return d["tmin"];
+                        },
+                        function (d) {
+                            return d["vpdmax"];
+                        },
+                        function (d) {
+                            return d["vpdmin"];
+                        },
+                        function (d) {
+                            return d["Cause"];
+                        },
+                        function (d) {
+                            return d["fire_size_predictions"];
+                        },
+                        function (d) {
+                            return d["fire_size_predictions_norm"];
+                        },
+                        // function(d) {
+                        //     return d["URL"];
+                        // },
+                    ])
+                    // This is the place to sort the data table, choose one of the table columns.
+                    .sortBy(dc.pluck('FIRE_YEAR'))
+                    .order(d3.descending)
+                    .on('renderlet', function (table) {
+                        // each time table is rendered remove nasty extra row dc.js insists on adding
+                        table.select('tr.dc-table-group').remove();
+
+                        // update map with lecturers to match filtered data
+                        paperMarkers.clearLayers();
+                        _.each(allDim.top(Infinity), function (d) {
+                            // var loc = d.brewery.location;
+                            // this is the code for the geospatial Long/Lat
+                            var longitude = d["LONGITUDE"];
+                            var latitude = d["LATITUDE"];
+                            var title = d["Fire_Name"];
+                            var year = d["FIRE_YEAR"];
+                            var discoverDate = d["DISCOVERY"];
+                            var fireSize = d["FIRE_SIZE"];
+                            var country = d["County_Name"];
+                            var aspectD = d["aspect_degrees"];
+                            var elev = d["elevation_meters"];
+                            var slopeP = d["slope_percent"];
+                            var precipCm = d["precip"];
+                            var tempMax = d["tmax"];
+                            var tempMean = d["tmean"];
+                            var tempMin = d["tmin"];
+                            var maxVPD = d["vpdmax"];
+                            var minVPD = d["vpdmin"];
+                            var paperFocus = d["Cause"];
+                            var firePred = d["fire_size_predictions"];
+                            var fireNorm = d["fire_size_predictions_norm"];
+
+
+                            var fillColor_Var = "";
+
+
+                            if (paperFocus == "Natural") {
+                                fillColor_Var = "#228B22";
+                            } else if (paperFocus == "Human") {
+                                fillColor_Var = "#0096FF";
+                            } else if (paperFocus == "Missing data/not specified/undetermined") {
+                                fillColor_Var = "#40E0D0";
+                            } else {
+                                fillColor_Var = "#B9C0C3";
+                            }
+
+
+                            var marker = L.circleMarker([latitude, longitude], {
+                                radius: 7,
+                                fillColor: fillColor_Var,
+                                color: "gray",
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            });
+
+                            marker.bindPopup(
+                                "<dt><span style='font-weight:bolder'>Fire Name: </span> </dt> <dd>" + title + "<dd>" +
+                                "<dt><span style='font-weight:bolder'>Year: </span> </dt> <dd>" + year + "<dd>" +
+                                "<dt><span style='font-weight:bolder'>Discovery Date: </span> </dt> <dd>" + discoverDate + "<dd>" +
+                                "<dt><span style='font-weight:bolder'>Fire Size (acres): </span> </dt> <dd>" + fireSize + "<dd>" +
+                                "<dt><span style='font-weight:bolder'>County Name: </span> </dt> <dd>" + country + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Aspect (degrees): </span> </dt> <dd>" + aspectD + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Elevation (meters): </span> </dt> <dd>" + elev + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Slope (percent): </span> </dt> <dd>" + slopeP + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Precipitation (cm): </span> </dt> <dd>" + precipCm + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Max Temp (monthly) (c): </span> </dt> <dd>" + tempMax + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Mean Temp (monthly) (c): </span> </dt> <dd>" + tempMean + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>Min Temp (monthly) (c): </span> </dt> <dd>" + tempMin + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>VPD max (monthly) (mb): </span> </dt> <dd>" + maxVPD + "<dd>" +
+                                // "<dt><span style='font-weight:bolder'>VPD min (monthly) (mb): </span> </dt> <dd>" + minVPD + "<dd>" +
+                                "<dt><span style='font-weight:bolder'>Fire Size Prediction (acres): </span> </dt> <dd>" + firePred + "<dd>" +
+                                "<dt><span style='font-weight:bolder'>Fire Size Prediction Normalized: </span> </dt> <dd>" + fireNorm + "<dd>" +    
+                                "<dt><span style='font-weight:bolder'>Cause: </span> </dt> <dd>" + paperFocus + "<dd>"
+                            );
+                            paperMarkers.addLayer(marker);
+                        });
+                        map.addLayer(paperMarkers);
+                        map.fitBounds(paperMarkers.getBounds());
+                    });
+                // register handlers
+                d3.selectAll('a#all').on('click', function () {
+                    dc.filterAll();
+                    dc.renderAll();
+                });
+
+                d3.selectAll('a#focus').on('click', function () {
+                    focusChart.filterAll();
+                    dc.redrawAll();
+                });
+
+                d3.selectAll('a#country').on('click', function () {
+                    countryChart.filterAll();
+                    dc.redrawAll();
+                });
+
+                d3.selectAll('a#year').on('click', function () {
+                    yearChart.filterAll();
+                    dc.redrawAll();
+                });
+                // showtime!
+                dc.renderAll();
+
+            });
+        </script>
+
+        <!-- Model code begin -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">About web app: 2016 - 2020 California Fires (>500 acres) Size Predicitons</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <p> In the West, there has been a notable increase in stand-replacing fires as mean and maximum fire size and annually burned area 
+                            have dramatically increased since the 1980s (Miller et al. 2009). During 1972 – 2018 California experienced a fivefold increase 
+                            in annual burned area, this increase was primarily supported from an eightfold increase in summer forest-fire extent (Williams et al. 2019). 
+                            Our goal is to develop a website that visualizes historical fire ignitions in California of large fire events (1000 acres or more) and predicts 
+                            fire ignition for the rest of 2023 using machine learning techniques. To project ignitions, we will use various environmental variables, including 
+                            monthly maximum, minimum, and average temperature, historical fire shapes, elevation, aspect, slope, precipitation, and maximum and minimum vapor 
+                            pressure to train our machine learning model. After the model is trained the result will be fire predicitions based on our explanatory variables. 
+                            This creates a framework for future work based on different climatic variables to suggest fire size with the assumptions that suppression is the same
+                            across ignitions.</p>
+                
+                           <p>Bibliography</p> 
+                            
+                           <p>Miller, J. D., H. D. Safford, M. Crimmins, and A. E. Thode. 2009. Quantitative Evidence for Increasing Forest Fire Severity in the Sierra Nevada and 
+                            Southern Cascade Mountains, California and Nevada, USA. Ecosystems 12 (1):16–32.</p>
+                            
+                            <p>Williams, A. P., J. T. Abatzoglou, A. Gershunov, J. Guzman-Morales, D. A. Bishop, J. K. Balch, and D. P. Lettenmaier. 2019. Observed Impacts of Anthropogenic 
+                            Climate Change on Wildfire in California. Earth’s Future 7 (8):892–910.</p>
+
+                        <p style="text-align:center;"><i><a href="" target="_blank">(web app
+                                    demo video)</a></i></p>
+
+
+
+                        <p> <strong>Web map team:</strong> </p>
+                        <li>Web map advisor (web design and programming): <a href="https://www.lipingyang.org"
+                                target="_blank">Dr. Liping Yang</a> (lipingyang@unm.edu)</li>
+
+
+                        <li>Web map design and developer: <a href="https://sarakota.github.io/"
+                                target="_blank">Westin Guthrie</a> (wkaguthrie40k@gmail.com)
+                        </li>
+
+                        <li>Data provider: Westin Guthrie (wkaguthrie40k@gmail.com)</li>
+
+                        <li>Machine learning fire size prediction done by: <a href="https://github.com/alhridoy/"
+                            target="_blank">Al-Ekram Hridoy</a> (aliqramalaheehridoy@gmail.com)</li>
+                            <li> <a href = "https://www.kaggle.com/code/aliqram/fire-modeling/notebook" target = "_blank">machine learning notebook</a>
+
+                        <br>
+
+
+                        <p><strong>Acknowledgements:</strong> </p>
+                        <li>
+                            <a href="https://dc-js.github.io/dc.js/" target="_blank">dc.js</a>
+                        </li>
+                        <li><a href="https://d3js.org/" target="_blank">D3</a> </li>
+                        <li><a href="https://leafletjs.com/" target="_blank">Leaflet</a> </li>
+                        <li><a href="https://geoair-lab.github.io/WaterFeatureAI-WebApp/index.html" target="_blank">GEOAIR-Lab Water Feature AI WebApp</a> </li>
+
+                        <br>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Model compoent end  -->
+
+</body>
+
+</html>
