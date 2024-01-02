@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Westin Guthrie</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="js.js"></script>
+    <link rel="stylesheet" href="stylev3.css">
+    <style>
+    </style>
+</head>
+
+<body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#myPage">Westin Guthrie</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#myPage">About</a></li>
+                    <li><a href="#mappies">Coordinates</a></li>
+                    <li><a href="#interest">Interests and Experience</a></li>
+                    <li><a href="#portfolio">My Work</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="jumbotron text-center">
+        <div id="about" class="container-fluid">
+            <img src="profile/me.jpg" class="img-responsive img-circle margin" style="display:inline" alt="Bird"
+                width="300" height="300">
+            <h1>I am Westin Guthrie</h1>
+            <p>I am a PhD student at UNM department of Geography and Environmental Sciences.</p>
+            <p>I received my Master's at UNM, in the same department, in 2023.</p>
+        </div>
+    </div>
+
+    <div id="mappies" class="container-fluid bg-grey">
+        <div class="row">
+            <div class="col-sm-6">
+                <h2>Origin</h2>
+                <body id="leafmap">
+                    <div id="mapId" style="height:400px; width: 100%" class="leafletmap"></div>
+                    <script>
+                        var mymap = L.map('mapId').setView([39.7285, -121.8375], 13);
+                        // create a variable named "osm" that is used to hold OpenStreetMap tile layer
+                        var osm = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+                        // add the osm tile layer
+                        osm.addTo(mymap);
+                        // add a marker on tile
+                        var marker = L.marker([39.7285, -121.8375]).addTo(mymap);
+                        // add popup
+                        // popups used when you want to attach info to a particular object on a map
+                        marker.bindPopup("<b>Hello world!</b> <br> <i>Chico, CA</i> </br> I grew up here!")
+                    </script>
+                </body>
+            </div>
+
+            <div class = "col-sm-6">
+                <h2>Current</h2>
+                <body id="leafmap2">
+                    <div id="mapId2" style="height:400px; width: 100%" class="leafletmap"></div>
+                    <script>
+                        var mymap2 = L.map('mapId2').setView([35.0843, -106.6241], 13);
+                        // create a variable named "osm" that is used to hold OpenStreetMap tile layer
+                        var osm = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+                        // add the osm tile layer
+                        osm.addTo(mymap2);
+                        // add a marker on tile
+                        var marker = L.marker([35.0843, -106.6241]).addTo(mymap2);
+                        // add popup
+                        // popups used when you want to attach info to a particular object on a map
+                        marker.bindPopup("<i>ABQ, NM</i> </br> Where I stay")
+                    </script>
+                </body>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div id="interest" class="container-fluid bg-grey">
+        <div class="row">
+            <div class = "col-sm-4">
+                <img src="interest_pic.jpg" width="100%" height="100%">
+            </div>
+            <div class="col-sm-8">
+                <h2>Interests and Experience</h2>
+                <p>I am interested in ecology, forest succession, understanding disturbances, future climates, statistical models, and
+                    impacts
+                    on carbon and nitrogen.</p>
+                <p>I am working on my dissertation which seeks to answer:
+                    <i> How will contemporary and future climate scenarios impact the frequency and severity of fire
+                        intersecting with an
+                        expanding wildland-urban interface in southern California? </i>
+                </p>
+
+                <p>
+                    To answer this question, I plan to couple a forest landscape model and an urban growth model so that they will interact and impact one another. 
+                    The coupling will play a part in disturbing forest succession, fire, and urban growth to understand what WUI fire relationships might look like 
+                    in the latter half of the century.
+                </p>
+
+                <a href="guthrieWestinResume.pdf" target="_blank"><span class="glyphicon glyphicon-link"></span>My resume</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="portfolio" class="container-fluid">
+        <h2 id="some_maps">My Work</h2>
+        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+                <li data-target="#myCarousel" data-slide-to="2"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+                <div class="item active">
+                    <img src="carousel_images/poster_iawf.png" alt="New York">
+                    <div class="carousel-caption">
+                        <h3></h3>
+                        <p>IAWF 2022 Poster</p>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <img src="carousel_images/climate regions.png" alt="Chicago">
+                    <div class="carousel-caption">
+                        <h3>LANDIS-II project Climate Regions</h3>
+                        <p>Climate Regions calculated for my research.</p>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <img src="carousel_images/aoi.png" alt="Los Angeles">
+                    <div class="carousel-caption">
+                        <h3>Area of Interest</h3>
+                        <p>Area of interest for my dissertation work.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left and right controls -->
+            <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+
+    <div id = "webapp" class = "container-fluid bg-grey">
+        <h2 class="text-center"> My WebApp</h2>
+        <p><a href="https://github.com/sarakota/585L_ca_fire"  target="_blank"><span class="glyphicon glyphicon-link"></span> WebApp Github</a></p>
+        <p> In the West, there has been a notable increase in stand-replacing fires as mean and maximum fire size and annually burned area 
+            have dramatically increased since the 1980s (Miller et al. 2009). During 1972 – 2018 California experienced a fivefold increase 
+            in annual burned area, this increase was primarily supported from an eightfold increase in summer forest-fire extent (Williams et al. 2019). 
+            Our goal is to develop a website that visualizes historical fire ignitions in California of large fire events (1000 acres or more) and predicts 
+            fire ignition for the rest of 2023 using machine learning techniques. To project ignitions, we will use various environmental variables, including 
+            monthly maximum, minimum, and average temperature, historical fire shapes, elevation, aspect, slope, precipitation, and maximum and minimum vapor 
+            pressure to train our machine learning model. After the model is trained the resulting ignitions will then be presented on our web map. The website 
+            will provide users with an interactive platform to explore past wildfires and the climatic affects present at time the month of ignition, enabling an 
+            understanding of the environmental conditions leading to fire ignition, and help prepare for future fires of 2023. Our goal is to develop a tool that 
+            can assist in fire management and prevention, ultimately reducing the damage caused by wildfires.</p>
+
+           <p>Bibliography</p> 
+            
+           <p>Miller, J. D., H. D. Safford, M. Crimmins, and A. E. Thode. 2009. Quantitative Evidence for Increasing Forest Fire Severity in the Sierra Nevada and 
+            Southern Cascade Mountains, California and Nevada, USA. Ecosystems 12 (1):16–32.</p>
+            
+            <p>Williams, A. P., J. T. Abatzoglou, A. Gershunov, J. Guzman-Morales, D. A. Bishop, J. K. Balch, and D. P. Lettenmaier. 2019. Observed Impacts of Anthropogenic 
+            Climate Change on Wildfire in California. Earth’s Future 7 (8):892–910.</p>
+    </div>
+
+    <!-- Container (Contact Section) -->
+    <div id="contact" class="container-fluid bg-grey">
+        <h2 class="text-center"></h2>
+        <div class="row">
+            <div id = "contacts" class="col-sm-12">
+                <p>Get in touch.</p>
+                <p> <a href="mailto:wkaguthrie40k@gmail.com"><span class="glyphicon glyphicon-envelope"></span> wkaguthrie40k@gmail.com </a></p>
+                <p><a href="https://www.linkedin.com/in/westin-guthrie-vettel/"><span class="glyphicon glyphicon-user"></span> LinkedIn</a></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Image of location/map -->
+    <img src="sandia.jpg" class="w3-image w3-greyscale-min" style="width:100%">
+
+    <footer class="container-fluid text-center">
+        <a href="#myPage" title="To Top">
+            <span class="glyphicon glyphicon-chevron-up"></span>
+        </a>
+    </footer>
+
+    <script>
+    </script>
+
+</body>
+
+</html>
